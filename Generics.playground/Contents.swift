@@ -65,3 +65,36 @@ Task {
         print(error)
     }
 }
+
+
+struct ImageAPIRequest: APIRequest {
+
+    enum ResponseError: Error {
+        case invalidImageData
+    }
+    
+    let url: URL
+    
+    var urlRequest: URLRequest {
+        return URLRequest(url: url)
+    }
+    
+    func decodeResponse(data: Data) throws -> UIImage {
+        guard let image = UIImage(data: data) else { throw ResponseError.invalidImageData }
+        return image
+    }
+}
+
+let imageInfoRequest = PhotoInfoAPIRequest(apiKey: "DEMO_KEY")
+Task {
+    do {
+        let imageInfo = try await sendRequest(imageInfoRequest)
+        let imageRequest = ImageAPIRequest(url: imageInfo.url)
+        let image = try await sendRequest(imageRequest)
+        image
+    } catch {
+        print(error)
+    }
+}
+
+
